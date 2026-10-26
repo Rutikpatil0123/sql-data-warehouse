@@ -1,3 +1,5 @@
+DROP PROCEDURE IF EXISTS silver.load_silver_layer;
+
 DELIMITER //
 
 CREATE PROCEDURE silver.load_silver_layer()
@@ -125,33 +127,43 @@ BEGIN
         sls_price
     )
     SELECT
-        sls_ord_num,
-        sls_prd_key,
-        sls_cust_id,
+        source_data.sls_ord_num,
+        source_data.sls_prd_key,
+        source_data.sls_cust_id,
         CASE
-            WHEN sls_order_dt IS NULL OR sls_order_dt = 0 OR CHAR_LENGTH(CAST(sls_order_dt AS CHAR)) != 8 THEN NULL
-            ELSE STR_TO_DATE(CAST(sls_order_dt AS CHAR), '%Y%m%d')
+            WHEN source_data.sls_order_dt IS NULL OR source_data.sls_order_dt = 0 OR CHAR_LENGTH(CAST(source_data.sls_order_dt AS CHAR)) != 8 THEN NULL
+            ELSE STR_TO_DATE(CAST(source_data.sls_order_dt AS CHAR), '%Y%m%d')
         END AS sls_order_dt,
         CASE
-            WHEN sls_ship_dt IS NULL OR sls_ship_dt = 0 OR CHAR_LENGTH(CAST(sls_ship_dt AS CHAR)) != 8 THEN NULL
-            ELSE STR_TO_DATE(CAST(sls_ship_dt AS CHAR), '%Y%m%d')
+            WHEN source_data.sls_ship_dt IS NULL OR source_data.sls_ship_dt = 0 OR CHAR_LENGTH(CAST(source_data.sls_ship_dt AS CHAR)) != 8 THEN NULL
+            ELSE STR_TO_DATE(CAST(source_data.sls_ship_dt AS CHAR), '%Y%m%d')
         END AS sls_ship_dt,
         CASE
-            WHEN sls_due_dt IS NULL OR sls_due_dt = 0 OR CHAR_LENGTH(CAST(sls_due_dt AS CHAR)) != 8 THEN NULL
-            ELSE STR_TO_DATE(CAST(sls_due_dt AS CHAR), '%Y%m%d')
+            WHEN source_data.sls_due_dt IS NULL OR source_data.sls_due_dt = 0 OR CHAR_LENGTH(CAST(source_data.sls_due_dt AS CHAR)) != 8 THEN NULL
+            ELSE STR_TO_DATE(CAST(source_data.sls_due_dt AS CHAR), '%Y%m%d')
         END AS sls_due_dt,
         CASE
-            WHEN sls_sales IS NULL OR sls_sales <= 0 OR sls_sales != (sls_quantity * ABS(sls_price))
-                THEN sls_quantity * ABS(sls_price)
-            ELSE sls_sales
+            WHEN source_data.sls_quantity IS NULL OR source_data.sls_quantity < 0 OR source_data.normalized_price IS NULL THEN NULL
+            ELSE source_data.sls_quantity * source_data.normalized_price
         END AS sls_sales,
-        sls_quantity,
-        CASE
-            WHEN sls_price IS NULL OR sls_price <= 0
-                THEN sls_sales / NULLIF(sls_quantity, 0)
-            ELSE sls_price
-        END AS sls_price
-    FROM bronze.cmr_sales_details;
+        source_data.sls_quantity,
+        source_data.normalized_price AS sls_price
+    FROM (
+        SELECT
+            sls_ord_num,
+            sls_prd_key,
+            sls_cust_id,
+            sls_order_dt,
+            sls_ship_dt,
+            sls_due_dt,
+            sls_quantity,
+            CASE
+                WHEN sls_price IS NOT NULL AND sls_price <> 0 THEN ABS(sls_price)
+                WHEN sls_sales > 0 AND sls_quantity > 0 THEN sls_sales / sls_quantity
+                ELSE NULL
+            END AS normalized_price
+        FROM bronze.cmr_sales_details
+    ) AS source_data;
 
     SELECT CONCAT('Completed silver.cmr_sales_details in ', TIMESTAMPDIFF(MICROSECOND, step_start, NOW(6)) / 1000000.0, ' seconds') AS Log_Message;
 

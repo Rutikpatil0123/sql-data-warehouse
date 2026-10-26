@@ -38,9 +38,9 @@ CREATE TABLE IF NOT EXISTS silver.cmr_sales_details (
     sls_order_dt DATE,
     sls_ship_dt DATE,
     sls_due_dt DATE,
-    sls_sales INT,
+    sls_sales DECIMAL(12, 2),
     sls_quantity INT,
-    sls_price INT,
+    sls_price DECIMAL(12, 2),
     dwh_created_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

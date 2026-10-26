@@ -1,17 +1,8 @@
---- This script drops database warehoue_db if exitst and then create new db
-	
+-- Create the warehouse database and layer schemas if they do not exist.
+CREATE DATABASE IF NOT EXISTS warehouse_db;
 
-drop database if exitst warehouse_db;
+USE warehouse_db;
 
-create database warehouse_db;
-
-use warehouse_db;
-
-
---- create schema for bronze, silver and gold layer
-
-create schema bronze;
-
-create schema sliver;
-
-create schema gold;
+CREATE SCHEMA IF NOT EXISTS bronze;
+CREATE SCHEMA IF NOT EXISTS silver;
+CREATE SCHEMA IF NOT EXISTS gold;
