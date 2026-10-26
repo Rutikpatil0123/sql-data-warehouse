@@ -30,7 +30,7 @@ SELECT CONCAT('   -> Truncate completed in ', TIMESTAMPDIFF(SECOND, @step_start,
 SET @step_start = NOW();
 SELECT '📥 Loading Customer Info (cust_info.csv)...' AS '';
 
-LOAD DATA INFILE '/var/lib/mysql-files/data/cust_info.csv'
+LOAD DATA LOCAL INFILE '/datasets/cust_info.csv'
 INTO TABLE bronze.cmr_cust_info
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
@@ -52,7 +52,7 @@ SELECT CONCAT('   -> cmr_cust_info loaded in ', TIMESTAMPDIFF(SECOND, @step_star
 SET @step_start = NOW();
 SELECT '📥 Loading Product Info (prd_info.csv)...' AS '';
 
-LOAD DATA INFILE '/var/lib/mysql-files/data/prd_info.csv'
+LOAD DATA LOCAL INFILE '/datasets/prd_info.csv'
 INTO TABLE bronze.cmr_prd_info
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
@@ -75,7 +75,7 @@ SELECT CONCAT('   -> cmr_prd_info loaded in ', TIMESTAMPDIFF(SECOND, @step_start
 SET @step_start = NOW();
 SELECT '📥 Loading Sales Details (sales_details.csv)...' AS '';
 
-LOAD DATA INFILE '/var/lib/mysql-files/data/sales_details.csv'
+LOAD DATA LOCAL INFILE '/datasets/sales_details.csv'
 INTO TABLE bronze.cmr_sales_details
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
@@ -100,7 +100,7 @@ SELECT CONCAT('   -> cmr_sales_details loaded in ', TIMESTAMPDIFF(SECOND, @step_
 SET @step_start = NOW();
 SELECT '📥 Loading ERP Customer AZ12 (CUST_AZ12.csv)...' AS '';
 
-LOAD DATA INFILE '/var/lib/mysql-files/data/CUST_AZ12.csv'
+LOAD DATA LOCAL INFILE '/datasets/CUST_AZ12.csv'
 INTO TABLE bronze.erp_cust_az12
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
@@ -120,7 +120,7 @@ SELECT CONCAT('   -> erp_cust_az12 loaded in ', TIMESTAMPDIFF(SECOND, @step_star
 SET @step_start = NOW();
 SELECT '📥 Loading ERP Location A101 (LOC_A101.csv)...' AS '';
 
-LOAD DATA INFILE '/var/lib/mysql-files/data/LOC_A101.csv'
+LOAD DATA LOCAL INFILE '/datasets/LOC_A101.csv'
 INTO TABLE bronze.erp_loc_a101
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
@@ -139,7 +139,7 @@ SELECT CONCAT('   -> erp_loc_a101 loaded in ', TIMESTAMPDIFF(SECOND, @step_start
 SET @step_start = NOW();
 SELECT '📥 Loading ERP Product Category (PX_CAT_G1V2.csv)...' AS '';
 
-LOAD DATA INFILE '/var/lib/mysql-files/data/PX_CAT_G1V2.csv'
+LOAD DATA LOCAL INFILE '/datasets/PX_CAT_G1V2.csv'
 INTO TABLE bronze.erp_px_cat_g1v2
 FIELDS TERMINATED BY ',' 
 ENCLOSED BY '"'
