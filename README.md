@@ -30,7 +30,7 @@ scripts/bronze/           Raw table definitions and CSV loading
 scripts/silver/           Clean table definitions and transformation procedure
 scripts/gold/             Analytics views
 scripts/docker/           Local Docker startup and pipeline runner
-tests/                    Test area (no automated tests yet)
+tests/                    SQL and dataset contract tests
 ```
 
 ## Data sources
@@ -150,10 +150,33 @@ When running outside the Docker launcher, apply the scripts in this order:
 See [docs/architecture.md](docs/architecture.md) for the full schema and
 transformation reference.
 
+## Run tests
+
+The standard-library test suite checks dataset headers and row shapes, SQL table
+and view contracts, source-to-Bronze loader wiring, Silver refresh wiring, and
+Docker startup order. These contract tests do not require Docker or MySQL:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+```
+
+To also run the opt-in live integration tests, ensure Docker is running and
+execute:
+
+```bash
+RUN_MYSQL_INTEGRATION=1 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+```
+
+The integration suite starts an isolated temporary MySQL container, applies the
+real pipeline scripts against the repository datasets, checks row counts and
+data-quality rules, then removes the container. It does not use or modify the
+normal `sql-data-warehouse-mysql` container or its persistent volume.
+
 ## Current limitations
 
 - `warehouse_db` is created by the initializer, while the layer objects are
   created in the separate `bronze`, `silver`, and `gold` schemas/databases.
-- There are no automated SQL tests in the repository yet.
+- Live integration tests require a working Docker installation and pull the
+  configured MySQL image if it is not already available locally.
 - Gold dimension keys are generated with `ROW_NUMBER()` in views; they are
   query-time keys and can change when the underlying rows or sort order change.
